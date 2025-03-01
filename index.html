@@ -16,15 +16,15 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
             background: linear-gradient(180deg, #e8f0ff 0%, #ffffff 100%);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px 10px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 32px;
-            border-radius: 24px;
+            padding: 20px 16px;
+            border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
         }
 
@@ -140,16 +140,53 @@
 
         @media (max-width: 640px) {
             .container {
-                padding: 20px;
+                padding: 16px;
             }
 
             .header h1 {
-                font-size: 28px;
+                font-size: 24px;
+                margin-bottom: 16px;
+            }
+
+            .search-container {
+                max-width: 100%;
+                padding: 0 4px;
+            }
+
+            .search-box {
+                margin-bottom: 16px;
+            }
+
+            .search-input {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .search-button {
+                padding: 8px 16px;
+                font-size: 14px;
             }
 
             .grid-container {
-                grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 12px;
+                margin-top: 20px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .card-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .card-title {
+                font-size: 15px;
+            }
+
+            .card-description {
+                font-size: 13px;
             }
         }
     </style>
