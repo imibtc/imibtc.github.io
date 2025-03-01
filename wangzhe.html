@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王者荣耀战力查询</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #00C9FF, #92FE9D);
+            --secondary-gradient: linear-gradient(135deg, #FF6B6B, #FFA07A);
+            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(0, 201, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, rgba(146, 254, 157, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(255, 107, 107, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(255, 230, 109, 0.15) 0%, transparent 50%),
+                #f6f8fd;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.08),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .version-info {
+            font-size: 14px;
+            color: #666;
+            opacity: 0.8;
+        }
+
+        .search-container {
+            margin-bottom: 32px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        #heroName {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 16px;
+            border: 2px solid rgba(0, 201, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: var(--transition);
+        }
+
+        #heroName:focus {
+            outline: none;
+            border-color: #00C9FF;
+            box-shadow: 0 0 0 4px rgba(0, 201, 255, 0.15);
+        }
+
+        #searchBtn {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #searchBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 201, 255, 0.25);
+        }
+
+        .platform-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .platform-btn {
+            padding: 12px;
+            font-size: 14px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 201, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .platform-btn.active {
+            color: white;
+            background: var(--primary-gradient);
+            border: none;
+            font-weight: 500;
+        }
+
+        .platform-btn:hover:not(.active) {
+            background: rgba(0, 201, 255, 0.1);
+            border-color: rgba(0, 201, 255, 0.4);
+        }
+
+        .result-container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .hero-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #00C9FF;
+            box-shadow: 0 0 20px rgba(0, 201, 255, 0.2);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .hero-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin: 16px 0 8px;
+        }
+
+        .hero-platform {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .power-table {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .power-header {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .power-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            align-items: center;
+        }
+
+        .power-row:last-child {
+            border-bottom: none;
+        }
+
+        .power-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00C9FF;
+        }
+
+        .medal {
+            font-size: 20px;
+            margin-right: 6px;
+        }
+
+        .bottom-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .bottom-btn {
+            flex: 1;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .btn-more {
+            background: var(--secondary-gradient);
+        }
+
+        .btn-qq {
+            background: var(--primary-gradient);
+        }
+
+        .bottom-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px;
+                margin: 10px;
+            }
+
+            .platform-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .bottom-buttons {
+                flex-direction: column;
+            }
+
+            .power-value {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>王者荣耀战力查询</h1>
+            <div class="version-info">v1.0版本 伊米博客：www.imibtc.com</div>
+        </div>
+        <div class="search-container">
+            <div class="search-input-group">
+                <input type="text" id="heroName" placeholder="请输入英雄名称" autocomplete="off">
+                <button id="searchBtn">查询</button>
+            </div>
+            <div class="platform-buttons">
+                <button class="platform-btn active" data-type="qq">安卓QQ</button>
+                <button class="platform-btn" data-type="wx">安卓微信</button>
+                <button class="platform-btn" data-type="ios_qq">苹果QQ</button>
+                <button class="platform-btn" data-type="ios_wx">苹果微信</button>
+            </div>
+        </div>
+        <div id="result"></div>
+
+        <div class="bottom-buttons">
+            <a href="http://www.imibtc.com" target="_blank" class="bottom-btn btn-more">更多项目</a>
+            <a href="https://qm.qq.com/cgi-bin/qm/qr?k=U9sS5eHqUTuFNmOvWeYk1VV_wtq2--96&jump_from=webapi&authKey=W9oCcGLZhmyynC77UYeZ4tt/FZfuWTY9SfKLetuI/ra1AThcU33VD2Bc4eMZgn+6" target="_blank" class="bottom-btn btn-qq">加入群聊</a>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 初始化页面事件监听
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBtn = document.getElementById('searchBtn');
+            const heroNameInput = document.getElementById('heroName');
+            const resultDiv = document.getElementById('result');
+            const platformBtns = document.querySelectorAll('.platform-btn');
+            let currentPlatform = 'qq'; // 默认选择安卓QQ
+
+            // 平台按钮点击事件
+            platformBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除其他按钮的active类
+                    platformBtns.forEach(b => b.classList.remove('active'));
+                    // 添加当前按钮的active类
+                    this.classList.add('active');
+                    // 更新当前平台
+                    currentPlatform = this.dataset.type;
+                    
+                    // 如果已经输入了英雄名称，自动触发搜索
+                    if (heroNameInput.value.trim()) {
+                        searchHero();
+                    }
+                });
+            });
+
+            // 点击查询按钮事件
+            searchBtn.addEventListener('click', searchHero);
+            
+            // 回车键触发查询
+            heroNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchHero();
+                }
+            });
+
+            /**
+             * 查询英雄战力
+             */
+            async function searchHero() {
+                const heroName = heroNameInput.value.trim();
+                if (!heroName) {
+                    alert('请输入英雄名称');
+                    return;
+                }
+
+                // 显示加载状态
+                resultDiv.innerHTML = '<div class="loading">加载中...</div>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    // 获取当前选中的平台
+                    const platform = document.querySelector('.platform-btn.active').dataset.type;
+                    // 构建API请求URL
+                    const apiUrl = `https://api.xxoo.team/hero/getHeroInfo.php?hero=${encodeURIComponent(heroName)}&type=${platform}`;
+                    
+                    const response = await fetch(apiUrl);
+                    const result = await response.json();
+                    
+                    if (result.code === 200 && result.data) {
+                        const data = result.data;
+                        resultDiv.innerHTML = `
+                            <div class="result-container">
+                                <img src="${data.photo}" alt="${data.name}" class="hero-photo">
+                                <h2 class="hero-name">${data.name}</h2>
+                                <div class="hero-platform">${data.platform}</div>
+                                
+                                <div class="power-table">
+                                    <div class="power-header">
+                                        <div>等级</div>
+                                        <div>区域</div>
+                                        <div>战力</div>
+                                    </div>
+                                    <div class="power-row">
+                                        <div><span class="medal">🏅</span>省级</div>
+                                        <div>${data.province}</div>
+                                        <div class="power-value">${data.provincePower}</div>
+                                    </div>
+                                    <div class="power-row">
+                                        <div><span class="medal">🥈</span>市级</div>
+                                        <div>${data.city}</div>
+                                        <div class="power-value">${data.cityPower}</div>
+                                    </div>
+                                    <div class="power-row">
+                                        <div><span class="medal">🥉</span>区级</div>
+                                        <div>${data.area}</div>
+                                        <div class="power-value">${data.areaPower}</div>
+                                    </div>
+                                    <div class="power-row">
+                                        <div><span class="medal">🌐</span>国标</div>
+                                        <div>全国</div>
+                                        <div class="power-value">${data.guobiao}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="update-time">
+                                    更新时间: ${data.updatetime}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = '<div class="error-message">查询失败，请稍后重试</div>';
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = '<div class="error-message">查询失败，请稍后重试</div>';
+                    console.error('API调用错误：', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
