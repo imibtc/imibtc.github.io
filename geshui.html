@@ -1,0 +1,524 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人所得税计算器</title>
+	 <script>
+ 	/**
+ 	 * @constant {Object} TAX_QUICK_RATE - 个税速算扣除数
+ 	 */
+ 	const TAX_QUICK_RATE = {
+         3: 0,
+         10: 2520,
+         20: 16920,
+         25: 31920,
+         30: 52920,
+         35: 85920,
+         45: 181920
+     };
+
+     /**
+      * @constant {Object} TAX_RATE_LEVELS - 个税税率等级
+      */
+     const TAX_RATE_LEVELS = {
+         3: 36000,
+         10: 144000,
+         20: 300000,
+         25: 420000,
+         30: 660000,
+         35: 960000,
+         45: 999999999
+     };
+
+	window.	quickRateText = '{"3":0,"10":2520,"20":16920,"25":31920,"30":52920,"35":85920,"45":181920}'; 
+ 	//全局变量速算扣除数据
+	window.quickRate = window.JSON.parse(quickRateText);
+	window.rateText = '{"3":36000,"10":144000,"20":300000,"25":420000,"30":660000,"35":960000,"45":999999999}'; 
+	//全局变量税率
+	window.rate = window.JSON.parse(rateText);
+     function cal(){//开始计算
+     var arr=new Array();
+     arr[0]= document.getElementById("TaxSalary").value;
+     arr[1]= document.getElementById("Insurance").value;
+     arr[2]= document.getElementById("Special").value;
+     arr[3]= document.getElementById("Month").value;
+	  	for (var i=0;i<arr.length;i++)
+	  	{
+	  			checkdata(arr[i]);//数据校验
+	  	}
+	  	CheckMonth(arr[3])	;//月份校验							
+	  	var totalPay=0;//缴税累计金额
+	  	var taxPay=0;//本月应缴税额
+	  	document.getElementById("result").innerHTML="";//清空计算结果
+	    for(var i=1;i<=arr[3];i++){
+	   			var TaxMoney=(arr[0]-arr[1]-arr[2]-5000)*i;	
+	   			if(TaxMoney<0){ //不用交税
+	   			 	document.getElementById("result").innerHTML+="<p>恭喜你!!!你不用交税哦!!!!</p>";
+	   			 	return;
+	   			}
+ 	   			var taxRateString=getTaxRate(TaxMoney);
+ 	    		var taxRate=taxRateString/100;
+	        	var quickData= TAX_QUICK_RATE[taxRateString];
+	        	totalPay=totalPay+taxPay;
+	            taxPay=TaxMoney*taxRate-quickData-totalPay;
+ 	   			document.getElementById("result").innerHTML+="<p>第"+i+"月: 应交税额: "+TaxMoney.toFixed(2)+" 适应税率: "+taxRate+" 速算扣除数: "+quickData+ " 往月缴税金额: "+totalPay.toFixed(2)+" 本月应缴税额: "+taxPay.toFixed(2)+"</p>";
+	   }
+	  	 
+      }
+function getTaxRate(value) {//根据需要交税的金额获取相应的税率
+	if(value<0) return 0;
+	for (var prop in TAX_RATE_LEVELS){  
+		if(value<=TAX_RATE_LEVELS[prop]) 
+			return    prop ;
+ 		}
+	}
+function checkdata(value){
+		CheckIsNull(value);
+      	if (isNaN(value)) {//用isNaN开始判断，如果成立就是非数字
+    			alert("请输入正确的数值");
+    			return false;
+   						} 
+   		var len1 = value.substr(0,1);
+    	var len2 = value.substr(1,1);
+    	//如果第一位是0，第二位不是点，就用数字把点替换掉
+    	if(value.length > 1 && len1==0 && len2 != '.'){
+    			alert("请输入正确的数值");
+    			return false;	
+     	}
+ 		if(value<0){
+ 				alert("请输入大于或者等于0的正确的数值");
+    			return false;
+ 		}
+        }
+function checkdata_Onblur(obj){//输入框失去焦点数据校验
+		var value=obj.value;
+ 		CheckIsNull(value);
+ 		 if (isNaN(value)) {//用isNaN开始判断，如果成立就是非数字
+    			alert("请输入正确的数值");
+    			return false;
+   						}
+	
+    	var id= obj.id;
+     	if(id=="Month"){
+     	 	CheckMonth(value);
+     	}
+     	var len1 = value.substr(0,1);
+    	var len2 = value.substr(1,1);
+    	//如果第一位是0，第二位不是点，就用数字把点替换掉
+    	if(value.length > 1 && len1==0 && len2 != '.'){
+    			alert("请输入正确的数值");
+    			return false;	
+     	}
+ 		if(value<0){
+ 				alert("请输入大于或者等于0的正确的数值");
+    			return false;
+ 		}
+	}	
+function CheckMonth(value){//月份校验
+	var len1 = value.substr(0,1);
+  	if(value.length >= 1 && len1==0 ){
+     	  	alert("请输入正确的月份");
+     	  	return false;
+     	  }
+    if(value.indexOf(".")>0){
+     	  	alert("月份不能是小数,请重新输入正确的月份");
+     	  	return false;
+     	  }
+    
+       						}
+function CheckIsNull( value){//非空校验
+      if (value==null||value==""){
+  	 		alert( "数据不能为空!请重新输入");
+  	 		return false;
+  	 	}
+      }
+
+/**
+ * @function calculateTax
+ * @param {number} salary - 税前工资
+ * @param {number} insurance - 五险一金
+ * @param {number} special - 专项扣除
+ * @param {number} month - 月份
+ * @returns {Array<Object>} 每月税额计算结果
+ */
+function calculateTax(salary, insurance, special, month) {
+    const results = [];
+    let totalPay = 0;
+    
+    for (let i = 1; i <= month; i++) {
+        const taxableIncome = (salary - insurance - special - 5000) * i;
+        if (taxableIncome <= 0) {
+            return null; // 不需要缴税
+        }
+        
+        const taxRate = getTaxRate(taxableIncome) / 100;
+        const quickDeduction = TAX_QUICK_RATE[taxRate * 100];
+        const currentTax = taxableIncome * taxRate - quickDeduction - totalPay;
+        
+        totalPay += currentTax;
+        results.push({
+            month: i,
+            taxableIncome,
+            taxRate,
+            quickDeduction,
+            previousTax: totalPay - currentTax,
+            currentTax
+        });
+    }
+    return results;
+}
+
+/**
+ * @typedef {Object} ValidationResult
+ * @property {boolean} isValid - 验证是否通过
+ * @property {string} message - 错误信息
+ */
+
+/**
+ * @function validateInput
+ * @param {string} value - 输入值
+ * @param {Object} options - 验证选项
+ * @param {boolean} [options.isMonth=false] - 是否验证月份
+ * @returns {ValidationResult} 验证结果
+ */
+function validateInput(value, options = {}) {
+    if (!value || value.trim() === "") {
+        return { isValid: false, message: "数据不能为空!请重新输入" };
+    }
+
+    const number = parseFloat(value);
+    if (isNaN(number)) {
+        return { isValid: false, message: "请输入正确的数值" };
+    }
+
+    if (number < 0) {
+        return { isValid: false, message: "请输入大于或者等于0的正确的数值" };
+    }
+
+    if (options.isMonth) {
+        if (number > 12 || number < 1 || !Number.isInteger(number)) {
+            return { isValid: false, message: "请输入1-12之间的整数月份" };
+        }
+    }
+
+    return { isValid: true, message: "" };
+}
+
+/**
+ * @function handleInputValidation
+ * @param {HTMLInputElement} input - 输入框元素
+ */
+function handleInputValidation(input) {
+    const isMonth = input.id === "Month";
+    const result = validateInput(input.value, { isMonth });
+    
+    if (!result.isValid) {
+        alert(result.message);
+        input.focus();
+    }
+}
+
+/**
+ * @function getFormData
+ * @returns {Object|null} 表单数据或null(如果验证失败)
+ */
+function getFormData() {
+    const fields = {
+        salary: document.getElementById("TaxSalary"),
+        insurance: document.getElementById("Insurance"),
+        special: document.getElementById("Special"),
+        month: document.getElementById("Month")
+    };
+
+    const data = {};
+    for (const [key, input] of Object.entries(fields)) {
+        const result = validateInput(input.value, { 
+            isMonth: key === 'month' 
+        });
+        if (!result.isValid) {
+            alert(result.message);
+            input.focus();
+            return null;
+        }
+        data[key] = parseFloat(input.value);
+    }
+    return data;
+}
+
+/**
+ * @function displayResults
+ * @param {Array<Object>} results - 计算结果数组
+ */
+function displayResults(results) {
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "";
+    
+    if (!results) {
+        resultDiv.innerHTML = '<div class="no-tax">恭喜你！你不用交税哦！</div>';
+        return;
+    }
+    
+    results.forEach(result => {
+        const html = `
+            <div class="result-item">
+                <strong>第${result.month}月:</strong><br>
+                应交税额: ￥${result.taxableIncome.toFixed(2)}<br>
+                适用税率: ${(result.taxRate * 100)}%<br>
+                速算扣除数: ￥${result.quickDeduction}<br>
+                往月缴税金额: ￥${result.previousTax.toFixed(2)}<br>
+                本月应缴税额: ￥${result.currentTax.toFixed(2)}
+            </div>`;
+        resultDiv.innerHTML += html;
+    });
+}
+
+/**
+ * @function cal
+ * 主计算函数
+ */
+function cal() {
+    const data = getFormData();
+    if (!data) return;
+    
+    const results = calculateTax(
+        data.salary,
+        data.insurance,
+        data.special,
+        data.month
+    );
+    
+    displayResults(results);
+}
+
+// 为所有输入框添加验证
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('blur', () => handleInputValidation(input));
+});
+</script>
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --error-color: #ff4d4f;
+            --success-color: #52c41a;
+            --border-radius: 4px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #e8f0ff 0%, #ffffff 100%);
+            min-height: 100vh;
+            margin: 0; /* 重置margin */
+            display: flex; /* 使用flex布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            padding: 10px; /* 减小内边距 */
+        }
+
+        .container {
+            width: 100%; /* 设置宽度100% */
+            max-width: 800px;
+            background: #ffffff;
+            padding: 20px 16px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            margin: 0 auto; /* 水平居中 */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            color: #1f1f1f;
+            font-size: 28px;
+            margin: 0;
+            margin-bottom: 8px;  /* 为副标题留出空间 */
+        }
+
+        /* 添加副标题样式 */
+        .header .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #40b4e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .result-container {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            background: #f6f6f6;
+        }
+
+        .result-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .no-tax {
+            color: var(--success-color);
+            text-align: center;
+            font-size: 18px;
+            padding: 16px;
+        }
+
+        /* 修改输入框相关样式 */
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            -webkit-appearance: none; /* 移除iOS默认样式 */
+            appearance: none; /* 移除默认样式 */
+        }
+
+        /* 专门处理数字输入框的样式 */
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+
+        /* 移除数字输入框的上下箭头 */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            body {
+                padding: 10px; /* 减小body内边距 */
+            }
+            
+            .container {
+                margin: 10px;
+                padding: 16px;
+                width: calc(100% - 20px);
+                box-sizing: border-box;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+                width: 100%;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 8px 10px; /* 减小内边距 */
+                font-size: 14px;
+            }
+
+            /* 确保所有输入框容器不会溢出 */
+            .form-group, 
+            .form-input,
+            .button {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        /* 表单样式优化 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            background-color: #40b4e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+  </head>
+  
+  <body>
+  	<div class="container">
+        <header class="header">
+            <h1>个人所得税计算器</h1>
+            <p class="subtitle">v1.0版本 伊米博客：<a href="http://www.imibtc.com" target="_blank">www.imibtc.com</a></p>
+        </header>
+        
+        <form id="taxForm" onsubmit="return false;">
+            <div class="form-group">
+                <label class="form-label" for="TaxSalary">每月税前工资:</label>
+                <input class="form-input" id="TaxSalary" type="number" required />
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="Insurance">五险一金扣除金额:</label>
+                <input class="form-input" id="Insurance" type="number" required />
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="Special">专项扣除金额:</label>
+                <input class="form-input" id="Special" type="number" required />
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="Month">月份(1-12):</label>
+                <input class="form-input" id="Month" type="number" min="1" max="12" required />
+            </div>
+            
+            <div class="form-group">
+                <button class="button" onclick="cal()">开始计算</button>
+            </div>
+        </form>
+        
+        <div id="result" class="result-container"></div>
+    </div>
+  </body>
+</html>
