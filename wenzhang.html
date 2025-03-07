@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
     <script src="https://unpkg.com/element-plus"></script>
     <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         body {
@@ -88,6 +89,20 @@
             line-height: 1.6;
             font-size: 14px;
             color: #1f2937;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .article-content a {
+            word-break: break-all;
+            color: #409eff;
+            text-decoration: none;
         }
         
         .time-warning {
@@ -132,222 +147,117 @@
 
         /* 移动端适配样式 */
         @media (max-width: 768px) {
-            /* 导航栏优化 */
+            .container {
+                padding: 0 12px;
+            }
+            
             .nav-header {
-                padding: 12px 16px;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                padding: 12px;
             }
             
             .nav-brand {
                 font-size: 18px;
             }
             
-            /* 主容器优化 */
-            .container {
-                padding: 12px;
-                margin: 0;
+            .main-content {
+                padding: 16px;
+                border-radius: 0;
+                margin: 0 -12px;
             }
             
-            /* 风格选择按钮组优化 */
-            .style-section {
-                margin: 20px 0;
-            }
-            
-            .style-title {
-                font-size: 15px;
-                color: #333;
-                margin-bottom: 12px;
-            }
-            
-            .style-grid {
-                position: relative;
-            }
-            
+            /* 风格选择按钮组样式优化 */
             .style-radio-group {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
-                width: 100%;
             }
             
             .el-radio-button__inner {
+                padding: 8px 12px;
                 width: 100%;
-                padding: 10px 4px !important;
-                font-size: 13px !important;
                 border-radius: 6px !important;
                 border: 1px solid #dcdfe6 !important;
-                text-align: center;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                height: auto !important;
-                line-height: 1.4 !important;
-                transition: all 0.3s;
+                margin: 0 !important;
             }
             
-            /* 选中状态样式 */
-            .el-radio-button__original-radio:checked + .el-radio-button__inner {
-                background-color: #409eff !important;
-                border-color: #409eff !important;
-                box-shadow: none !important;
-                color: white !important;
-            }
-            
-            /* 自定义风格按钮样式 */
-            .custom-style .el-radio-button__inner {
-                grid-column: 1 / -1;
-                background-color: #f0f9ff;
-                border-color: #409eff !important;
-                color: #409eff;
-            }
-            
-            /* 分类分割线 */
-            .style-radio-group::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                right: 0;
-                height: 1px;
-                background: #eee;
-                margin: 8px 0;
-            }
-            
-            /* 表单控件优化 */
-            .el-input__inner,
-            .el-textarea__inner {
-                font-size: 16px !important; /* 防止 iOS 自动缩放 */
-                padding: 12px !important;
-                border-radius: 8px !important;
-            }
-            
-            /* 按钮优化 */
+            /* 处理按钮样式 */
             .el-button--large {
                 width: 100%;
-                height: 44px !important;
-                font-size: 16px !important;
-                border-radius: 8px !important;
-                margin-top: 16px;
+                margin-top: 8px;
             }
             
-            /* 历史记录优化 */
-            .history-section {
-                margin: 16px -12px;
-                padding: 16px;
+            /* 文章展示区域 */
+            .article-section {
+                margin: 16px -16px;
                 border-radius: 0;
-                background: white;
             }
             
-            .history-item {
-                padding: 12px;
-                margin-bottom: 12px;
-                border-radius: 8px;
-                background: #f8fafc;
+            /* 文章操作按钮 */
+            .article-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
             }
             
-            .history-item-actions {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-                margin-top: 12px;
+            .article-actions {
+                width: 100%;
             }
             
-            .history-item-actions .el-button {
-                margin: 0 !important;
-                padding: 8px !important;
-                height: 36px !important;
-                font-size: 13px !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 4px;
+            .article-actions .el-button {
+                flex: 1;
             }
             
-            .history-item-actions .el-icon {
-                margin-right: 4px;
+            /* 进度条区域 */
+            .loading-section {
+                margin: 16px -16px;
+                padding: 0 16px;
             }
             
-            /* 删除按钮单独占一行 */
-            .history-item-actions .el-button--danger {
-                grid-column: 1 / -1;
+            /* 等待提示 */
+            .time-warning {
+                margin: 12px -16px;
+            }
+            
+            .time-warning .el-alert {
+                border-radius: 0;
+            }
+            
+            /* API设置抽屉 */
+            .el-drawer {
+                width: 90% !important;
+            }
+            
+            /* 历史记录抽屉 */
+            .el-drawer.history-drawer {
+                width: 100% !important;
+            }
+            
+            /* 表单项间距 */
+            .el-form-item {
+                margin-bottom: 16px;
+            }
+            
+            /* 复制和分享按钮 */
+            .article-actions .el-button {
+                font-size: 14px;
+                height: 40px;
             }
         }
-
+        
         /* 触摸优化 */
         @media (hover: none) {
-            /* 增加点击区域和触摸反馈 */
-            .el-button,
-            .el-radio-button__inner,
-            .el-checkbox {
+            .el-button {
                 touch-action: manipulation;
-                -webkit-tap-highlight-color: transparent;
             }
             
-            .el-button:active,
-            .el-radio-button__inner:active {
-                opacity: 0.8;
-                transform: scale(0.98);
-                transition: all 0.1s;
+            .el-radio-button__inner {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
             }
             
             /* 增加可点击区域 */
             .el-checkbox {
                 padding: 8px 0;
-            }
-            
-            .el-radio-button__inner {
-                padding: 12px 0;
-            }
-        }
-
-        /* 深色模式支持 */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #1a1a1a;
-                color: #e5e5e5;
-            }
-            
-            .nav-header {
-                background: rgba(26, 26, 26, 0.95);
-            }
-            
-            .main-content,
-            .history-section {
-                background: #2d2d2d;
-            }
-            
-            .history-item {
-                background: #363636;
-                border-color: #4a4a4a;
-            }
-            
-            .el-input__inner,
-            .el-textarea__inner {
-                background: #363636;
-                border-color: #4a4a4a;
-                color: #e5e5e5;
-            }
-            
-            .style-title {
-                color: #e5e5e5;
-            }
-            
-            .el-radio-button__inner {
-                background: #363636;
-                border-color: #4a4a4a !important;
-                color: #e5e5e5;
-            }
-            
-            .custom-style .el-radio-button__inner {
-                background-color: rgba(64, 158, 255, 0.1);
-            }
-            
-            .style-radio-group::before {
-                background: #4a4a4a;
             }
         }
 
@@ -450,423 +360,78 @@
             background-color: rgba(255, 255, 255, 0.8);
         }
 
-        /* 添加交互动效 */
-        .el-button {
-            transition: all 0.3s ease;
+        /* 禁用状态下的表单样式 */
+        .el-form-item.is-disabled {
+            opacity: 0.6;
         }
 
-        .el-button:active {
-            transform: scale(0.98);
-        }
-
-        /* 添加hover效果 */
-        .history-item {
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        /* 添加复制成功动画 */
-        @keyframes copySuccess {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .copy-success {
-            animation: copySuccess 0.3s ease;
-        }
-
-        /* 移动端手势优化 */
-        @media (max-width: 768px) {
-            .history-item {
-                touch-action: pan-y;
-                user-select: none;
-            }
-
-            .el-drawer__wrapper {
-                touch-action: pan-y;
-            }
-
-            /* 下拉刷新提示 */
-            .pull-refresh {
-                height: 50px;
-                line-height: 50px;
-                text-align: center;
-                color: #999;
-            }
-        }
-
-        /* 加载状态样式优化 */
-        .loading-overlay {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-        }
-
-        .loading-spinner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .loading-text {
-            font-size: 14px;
-            color: #666;
-        }
-
-        /* 修改API设置抽屉中的按钮布局 */
-        .settings-buttons {
+        .settings-actions {
             display: flex;
             gap: 8px;
-            margin-top: 16px;
         }
 
-        /* 移动端按钮样式优化 */
+        /* 移动端适配 */
         @media (max-width: 768px) {
-            .settings-buttons {
-                display: flex;
-                flex-direction: row;  /* 确保水平排列 */
-                gap: 6px;            /* 减小按钮间距 */
-                margin-top: 16px;
+            .settings-actions {
+                flex-direction: column;
+                gap: 12px;
             }
             
-            .settings-buttons .el-button {
-                flex: 1;            /* 按钮等宽 */
-                padding: 8px 4px;   /* 减小内边距 */
-                font-size: 13px;    /* 减小字号 */
-                white-space: nowrap;/* 防止文字换行 */
-                min-width: 0;       /* 允许按钮宽度更小 */
-            }
-            
-            /* 隐藏图标以节省空间 */
-            .settings-buttons .el-button .el-icon {
-                display: none;
-            }
-            
-            /* 调整按钮文字大小，确保一行显示 */
-            .settings-buttons .el-button span {
-                font-size: 12px;
-                text-overflow: ellipsis;
-                overflow: hidden;
+            .settings-actions .el-button {
+                width: 100%;
+                margin-left: 0 !important;
             }
         }
 
-        /* 添加欢迎页面样式 */
-        .welcome-page {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
-        .welcome-content {
-            text-align: center;
+        .docs-btn {
+            margin-right: 8px;
         }
 
-        .welcome-content h1 {
-            font-size: 32px;
-            color: #1f2937;
-            margin-bottom: 40px;
-        }
-
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin: 40px 0;
-        }
-
-        .feature-item {
-            padding: 24px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .feature-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-item .el-icon {
-            font-size: 36px;
-            color: #409eff;
-            margin-bottom: 16px;
-        }
-
-        .feature-item h3 {
-            font-size: 18px;
-            margin: 12px 0;
-            color: #1f2937;
-        }
-
-        .feature-item p {
-            font-size: 14px;
-            color: #6b7280;
-            line-height: 1.6;
-        }
-
-        .demo-section {
-            margin: 60px 0;
-            text-align: left;
-        }
-
-        .demo-section h2 {
-            font-size: 24px;
-            color: #1f2937;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .demo-item {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .demo-before, .demo-after {
+        .docs-content {
             padding: 16px;
-            background: #f9fafb;
-            border-radius: 8px;
         }
 
-        .demo-before h4, .demo-after h4 {
+        .docs-section {
+            margin-bottom: 24px;
+        }
+
+        .docs-section h4 {
+            color: #333;
             font-size: 16px;
-            color: #1f2937;
             margin-bottom: 12px;
         }
 
-        .start-section {
-            margin: 60px 0;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        .docs-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        .start-section h2 {
-            font-size: 24px;
-            color: #1f2937;
-            margin-bottom: 16px;
-        }
-
-        .start-section ol {
-            text-align: left;
-            margin: 24px 0;
-            padding-left: 20px;
-        }
-
-        .start-section li {
-            margin: 12px 0;
-            color: #4b5563;
-            line-height: 1.6;
-        }
-
-        .start-section .el-button {
-            margin-top: 24px;
-        }
-
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .feature-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .demo-item {
-                grid-template-columns: 1fr;
-            }
-            
-            .welcome-content h1 {
-                font-size: 24px;
-            }
-            
-            .start-section {
-                padding: 24px;
-            }
-        }
-
-        /* 深色模式适配 */
-        @media (prefers-color-scheme: dark) {
-            .welcome-content h1 {
-                color: #e5e5e5;
-            }
-            
-            .feature-item {
-                background: #2d2d2d;
-            }
-            
-            .feature-item h3 {
-                color: #e5e5e5;
-            }
-            
-            .feature-item p {
-                color: #9ca3af;
-            }
-            
-            .demo-before, .demo-after {
-                background: #363636;
-            }
-            
-            .start-section {
-                background: #2d2d2d;
-            }
-            
-            .start-section h2 {
-                color: #e5e5e5;
-            }
-            
-            .start-section li {
-                color: #9ca3af;
-            }
-        }
-
-        /* 风格选择区域样式 */
-        .style-section {
-            margin: 20px 0;
-        }
-
-        .style-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .style-button {
-            padding: 8px 16px;
-            border: 1px solid #dcdfe6;
-            border-radius: 6px;
+        .docs-section li {
+            color: #666;
             font-size: 14px;
-            color: #606266;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #fff;
-            flex: 0 0 auto;
-        }
-
-        .style-button:hover {
-            color: #409eff;
-            border-color: #409eff;
-            background: #ecf5ff;
-        }
-
-        .style-button.active {
-            color: #409eff;
-            border-color: #409eff;
-            background: #ecf5ff;
-        }
-
-        /* 自定义风格按钮 */
-        .style-button.custom {
-            color: #409eff;
-            border-style: dashed;
+            line-height: 1.8;
+            margin-bottom: 8px;
         }
 
         /* 移动端适配 */
         @media (max-width: 768px) {
-            .style-grid {
-                gap: 6px;
+            .nav-actions {
+                gap: 4px;
             }
-            
-            .style-button {
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-        }
 
-        /* 深色模式 */
-        @media (prefers-color-scheme: dark) {
-            .style-button {
-                background: #2d2d2d;
-                border-color: #4a4a4a;
-                color: #e5e5e5;
+            .docs-btn {
+                margin-right: 4px;
             }
-            
-            .style-button:hover,
-            .style-button.active {
-                background: #409eff1a;
-                border-color: #409eff;
-                color: #409eff;
-            }
-        }
 
-        /* 文档样式 */
-        .docs-content {
-            padding: 0 20px;
-            color: #333;
-        }
-        
-        .doc-section {
-            margin-bottom: 32px;
-        }
-        
-        .doc-section h3 {
-            font-size: 18px;
-            margin-bottom: 16px;
-            color: #1f2937;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .doc-section p {
-            margin: 12px 0;
-            line-height: 1.6;
-            color: #4b5563;
-        }
-        
-        .doc-section ul {
-            margin: 12px 0;
-            padding-left: 20px;
-        }
-        
-        .doc-section li {
-            margin: 8px 0;
-            color: #4b5563;
-            line-height: 1.6;
-        }
-        
-        .doc-section .tip {
-            background: #f0f9ff;
-            padding: 12px;
-            border-radius: 6px;
-            color: #0369a1;
-        }
-        
-        .doc-section a {
-            color: #409eff;
-            text-decoration: none;
-        }
-        
-        .doc-section a:hover {
-            text-decoration: underline;
-        }
-        
-        /* 深色模式适配 */
-        @media (prefers-color-scheme: dark) {
             .docs-content {
-                color: #e5e5e5;
-            }
-            
-            .doc-section h3 {
-                color: #e5e5e5;
-            }
-            
-            .doc-section p,
-            .doc-section li {
-                color: #9ca3af;
-            }
-            
-            .doc-section .tip {
-                background: #0c4a6e;
-                color: #7dd3fc;
+                padding: 0 12px;
             }
         }
     </style>
@@ -879,12 +444,13 @@
                 <div class="nav-brand">DeepSeek文章改写</div>
                 <div class="nav-actions">
                     <el-button 
-                        type="info" 
-                        link 
                         @click="showDocs = true"
+                        class="docs-btn"
+                        type="info"
+                        plain
                     >
                         <el-icon><Document /></el-icon>
-                        文档
+                        <span>文档</span>
                     </el-button>
                     <el-button 
                         @click="showSettings = true"
@@ -900,65 +466,7 @@
 
         <div class="container">
             <div class="main-content">
-                <!-- 添加欢迎页面 -->
-                <div v-if="!form.apiKey" class="welcome-page">
-                    <div class="welcome-content">
-                        <h1>欢迎使用 DeepSeek 文章改写助手</h1>
-                        
-                        <div class="feature-list">
-                            <div class="feature-item">
-                                <el-icon><Document /></el-icon>
-                                <h3>一键改写文章</h3>
-                                <p>支持微信、知乎、小红书等平台的文章一键改写</p>
-                            </div>
-                            <div class="feature-item">
-                                <el-icon><Collection /></el-icon>
-                                <h3>多种写作风格</h3>
-                                <p>提供公众号、小红书、知乎等多种写作风格，以及鲁迅、王小波等大师风格</p>
-                            </div>
-                            <div class="feature-item">
-                                <el-icon><PictureFilled /></el-icon>
-                                <h3>保留原文结构</h3>
-                                <p>可选择保留原文格式、图片等，让改写更贴近原文</p>
-                            </div>
-                        </div>
-                        
-                        <div class="demo-section">
-                            <h2>效果展示</h2>
-                            <div class="demo-items">
-                                <div class="demo-item">
-                                    <div class="demo-before">
-                                        <h4>原文</h4>
-                                        <p>今天的天气特别好，阳光明媚，让人心情愉悦。我决定出门散步，享受这美好的时光。</p>
-                                    </div>
-                                    <div class="demo-after">
-                                        <h4>改写后（小红书风格）</h4>
-                                        <p>✨今日份的好天气打卡｜文艺清新风<br>
-                                        🌞太阳公公太给力了！温暖的阳光照在身上，整个人都被治愈了呢～<br>
-                                        🚶‍♀️决定来一场说走就走的散步，把这满满的幸福感记录下来...<br>
-                                        💭你们那里天气好吗？</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="start-section">
-                            <h2>开始使用</h2>
-                            <p>只需简单三步，即可开始使用：</p>
-                            <ol>
-                                <li>注册 <a href="https://cloud.siliconflow.cn" target="_blank">硅基流动</a> 账号（新用户有14元免费额度）</li>
-                                <li>获取 API Key</li>
-                                <li>开始体验 AI 改写功能</li>
-                            </ol>
-                            <el-button type="primary" size="large" @click="showSettings = true">
-                                <el-icon><Key /></el-icon>
-                                设置 API Key 开始使用
-                            </el-button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- API Key未设置时显示提示 -->
+                <!-- API Key未设置时的提示放在最上方 -->
                 <div v-if="!form.apiKey" class="api-key-warning">
                     <el-alert
                         type="info"
@@ -972,132 +480,133 @@
                     </el-alert>
                 </div>
 
-                <!-- 文章处理区域 -->
-                <div v-if="form.apiKey">
-                    <el-form :model="form" label-position="top">
-                        <el-form-item label="文章链接">
-                            <el-tooltip
-                                effect="dark"
-                                content="支持微信、知乎、小红书等平台的文章链接"
-                                placement="top-start"
-                            >
-                                <el-input
-                                    v-model="form.url"
-                                    placeholder="请输入要处理的文章链接"
-                                    clearable
-                                />
-                            </el-tooltip>
-                        </el-form-item>
+                <!-- 表单内容，不再使用v-if控制显示 -->
+                <el-form :model="form" label-position="top">
+                    <el-form-item label="文章链接">
+                        <el-input 
+                            v-model="form.url" 
+                            placeholder="请输入要处理的文章链接"
+                            clearable
+                            :disabled="!form.apiKey"
+                        ></el-input>
+                    </el-form-item>
 
-                        <!-- 修改风格选择部分的HTML -->
-                        <div class="style-section">
-                            <div class="style-grid">
-                                <div v-for="style in styleOptions"
-                                     :key="style.value"
-                                     class="style-button"
-                                     :class="{ 
-                                         active: form.style === style.value,
-                                         custom: style.value === 'custom'
-                                     }"
-                                     @click="form.style = style.value"
-                                >
-                                    {{ style.label }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 自定义风格输入框 -->
-                        <el-form-item v-if="form.style === 'custom'" label="自定义风格描述">
-                            <el-input
-                                v-model="form.customStyle"
-                                type="textarea"
-                                :rows="3"
-                                placeholder="请描述您想要的写作风格，例如：幽默诙谐，或者正式严肃等"
-                            />
-                        </el-form-item>
-
-                        <!-- 添加处理选项 -->
-                        <el-form-item>
-                            <el-checkbox v-model="form.keepStructure">保持原文结构</el-checkbox>
-                            <el-checkbox v-model="form.keepImages">保留图片</el-checkbox>
-                        </el-form-item>
-
-                        <!-- 改写按钮 -->
-                        <el-form-item>
-                            <el-button 
-                                type="primary" 
-                                @click="processArticle" 
-                                :loading="processing"
-                                size="large"
-                            >
-                                <el-icon><Magic /></el-icon>
-                                开始改写
-                            </el-button>
-                        </el-form-item>
-                    </el-form>
-
-                    <!-- 加载状态 -->
-                    <div v-if="processing" class="loading-section">
-                        <div v-if="processing" class="processing-status">
-                            <el-progress 
-                                :percentage="progress"
-                                :format="percentageFormatter"
-                                :status="progress >= 100 ? 'success' : ''"
-                                :stroke-width="10"
-                                :show-text="true"
-                            >
-                                <template #default="{ percentage }">
-                                    <span class="progress-label">{{ progressText }}</span>
-                                    <span class="progress-time" v-if="percentage < 100">
-                                        预计还需 {{ estimatedTime }}
-                                    </span>
-                                </template>
-                            </el-progress>
-                        </div>
-                        
-                        <!-- 添加等待时间提示 -->
-                        <div class="time-warning">
-                            <el-alert
-                                type="info"
-                                :closable="false"
-                                show-icon
-                            >
-                                <template #title>预计等待时间：{{ estimatedTime }}</template>
-                                <template #default>
-                                    文章越长，处理时间越久。处理过程中请勿关闭页面，您可以先去做其他事情。
-                                </template>
-                            </el-alert>
-                        </div>
+                    <!-- 风格选择按钮组 -->
+                    <div class="style-selection">
+                        <div class="style-selection-title">选择写作风格</div>
+                        <el-radio-group 
+                            v-model="form.style" 
+                            class="style-radio-group"
+                            :disabled="!form.apiKey"
+                        >
+                            <el-radio-button label="wechat">公众号爆文</el-radio-button>
+                            <el-radio-button label="xiaohongshu">小红书风格</el-radio-button>
+                            <el-radio-button label="zhihu">知乎答主</el-radio-button>
+                            <el-radio-button label="popular">通俗易懂</el-radio-button>
+                            <el-radio-button label="professional">专业学术</el-radio-button>
+                            <el-radio-button label="story">故事性强</el-radio-button>
+                            <el-radio-button label="humor">幽默诙谐</el-radio-button>
+                            <el-radio-button label="business">商务严谨</el-radio-button>
+                            <el-radio-button label="custom" class="custom-style">自定义风格</el-radio-button>
+                        </el-radio-group>
                     </div>
 
-                    <!-- 文章内容展示 -->
-                    <div v-if="articleContent" class="article-section">
-                        <div class="article-header">
-                            <h3>改写后的文章：</h3>
-                            <div class="article-actions">
-                                <el-button @click="copyContent" size="small">
-                                    <el-icon><Document /></el-icon>
-                                    复制内容
-                                </el-button>
-                                <el-button @click="shareResult" size="small" type="primary">
-                                    <el-icon><Share /></el-icon>
-                                    分享
-                                </el-button>
-                            </div>
-                        </div>
-                        <div class="article-content">{{ articleContent }}</div>
-                    </div>
+                    <!-- 其他表单内容，添加disabled属性 -->
+                    <el-form-item v-if="form.style === 'custom'" label="自定义风格描述">
+                        <el-input
+                            v-model="form.customStyle"
+                            type="textarea"
+                            :rows="3"
+                            placeholder="请描述您想要的写作风格，例如：幽默诙谐，或者正式严肃等"
+                            :disabled="!form.apiKey"
+                        />
+                    </el-form-item>
 
-                    <!-- 添加取消按钮 -->
-                    <el-button 
-                        v-if="processing && canCancel"
-                        @click="cancelProcessing"
-                        type="danger"
-                        size="small"
-                    >
-                        取消处理
-                    </el-button>
+                    <el-form-item>
+                        <el-checkbox 
+                            v-model="form.keepStructure"
+                            :disabled="!form.apiKey"
+                        >保持原文结构</el-checkbox>
+                        <el-checkbox 
+                            v-model="form.keepImages"
+                            :disabled="!form.apiKey"
+                        >保留图片</el-checkbox>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button 
+                            type="primary" 
+                            @click="processArticle" 
+                            :loading="processing"
+                            :disabled="!form.apiKey"
+                            size="large"
+                        >
+                            <el-icon><Magic /></el-icon>
+                            开始改写
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!-- 加载状态 -->
+                <div v-if="processing" class="loading-section">
+                    <el-progress 
+                        :percentage="progress" 
+                        :format="percentageFormatter"
+                        :stroke-width="10"
+                    />
+                    <div class="progress-text">{{ progressText }}</div>
+                    
+                    <!-- 添加等待时间提示 -->
+                    <div class="time-warning">
+                        <el-alert
+                            type="info"
+                            :closable="false"
+                            show-icon
+                        >
+                            <template #title>预计等待时间：{{ estimatedTime }}</template>
+                            <template #default>
+                                文章越长，处理时间越久。处理过程中请勿关闭页面，您可以先去做其他事情。
+                            </template>
+                        </el-alert>
+                    </div>
                 </div>
+
+                <!-- 文章内容展示 -->
+                <div v-if="articleContent" class="article-section">
+                    <div class="article-header">
+                        <h3>改写后的文章：</h3>
+                        <div class="article-actions" v-if="articleContent">
+                            <el-button @click="copyContent" size="small" plain>
+                                <el-icon><Document /></el-icon>
+                                复制内容
+                            </el-button>
+                            <el-dropdown @command="handleExport" type="primary" size="small">
+                                <el-button type="primary" size="small">
+                                    <el-icon><Download /></el-icon>
+                                    导出文档
+                                </el-button>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item command="txt">导出文本文件(.txt)</el-dropdown-item>
+                                        <el-dropdown-item command="md">导出 Markdown(.md)</el-dropdown-item>
+                                        <el-dropdown-item command="pdf">导出 PDF文件(.pdf)</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
+                    </div>
+                    <div class="article-content">{{ formatArticleContent(articleContent) }}</div>
+                </div>
+
+                <!-- 添加取消按钮 -->
+                <el-button 
+                    v-if="processing && canCancel"
+                    @click="cancelProcessing"
+                    type="danger"
+                    size="small"
+                >
+                    取消处理
+                </el-button>
 
                 <!-- 历史记录展示 -->
                 <div v-if="totalHistory.length > 0" class="history-section">
@@ -1122,14 +631,23 @@
                             {{ item.content.substring(0, 100) }}...
                         </div>
                         <div class="history-item-actions">
-                            <el-button @click="loadHistoryItem(item)" size="small" type="primary">
-                                <el-icon><Refresh /></el-icon>
-                                重新生成
+                            <el-button @click="loadHistoryItem(item)" size="small" type="primary" plain>
+                                <el-icon><RefreshRight /></el-icon>
+                                重新使用
                             </el-button>
-                            <el-button @click="copyHistoryContent(item)" size="small" plain>
-                                <el-icon><Document /></el-icon>
-                                复制内容
-                            </el-button>
+                            <el-dropdown @command="(command) => handleHistoryExport(command, item)" size="small" plain>
+                                <el-button size="small" plain>
+                                    <el-icon><Download /></el-icon>
+                                    导出文档
+                                </el-button>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item command="txt">导出文本文件(.txt)</el-dropdown-item>
+                                        <el-dropdown-item command="md">导出 Markdown(.md)</el-dropdown-item>
+                                        <el-dropdown-item command="pdf">导出 PDF文件(.pdf)</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
                             <el-button @click="deleteHistoryItem(item)" size="small" type="danger" plain>
                                 <el-icon><Delete /></el-icon>
                                 删除
@@ -1149,20 +667,6 @@
                         </el-button>
                     </div>
                 </div>
-
-                <!-- 添加空状态提示 -->
-                <template v-if="totalHistory.length === 0">
-                    <div class="empty-state">
-                        <el-empty description="暂无历史记录">
-                            <template #image>
-                                <el-icon :size="60"><DocumentDelete /></el-icon>
-                            </template>
-                            <template #description>
-                                <p>处理文章后会自动保存到历史记录</p>
-                            </template>
-                        </el-empty>
-                    </div>
-                </template>
             </div>
         </div>
 
@@ -1170,7 +674,7 @@
         <el-drawer
             v-model="showSettings"
             title="API设置"
-            :size="isMobile ? '90%' : '400px'"
+            :size="isMobile ? '70%' : '300px'"
             :with-header="true"
         >
             <el-form :model="form" label-position="top">
@@ -1193,17 +697,38 @@
                     </div>
                 </el-form-item>
                 <el-form-item>
-                    <div class="settings-buttons">
-                        <el-button type="primary" @click="saveApiKey">保存</el-button>
-                        <el-button @click="testApiKey" :loading="testing">测试连接</el-button>
+                    <div class="settings-actions">
                         <el-button 
-                            type="danger" 
-                            @click="clearApiKey" 
+                            type="primary" 
+                            @click="saveApiKey"
                             :disabled="!form.apiKey"
+                            style="width: 100%; margin-bottom: 8px;"
+                        >
+                            <el-icon><Check /></el-icon>
+                            保存设置
+                        </el-button>
+
+                        <el-button 
+                            @click="testApiKey" 
+                            :loading="testing"
+                            type="info" 
                             plain
+                            :disabled="!form.apiKey"
+                            style="width: 100%; margin-bottom: 8px;"
+                        >
+                            <el-icon><Connection /></el-icon>
+                            测试连接
+                        </el-button>
+
+                        <el-button 
+                            @click="clearApiKey" 
+                            type="danger" 
+                            plain
+                            :disabled="!form.apiKey"
+                            style="width: 100%;"
                         >
                             <el-icon><Delete /></el-icon>
-                            清空API Key
+                            清除密钥
                         </el-button>
                     </div>
                 </el-form-item>
@@ -1244,99 +769,41 @@
             </div>
         </el-drawer>
 
-        <!-- 添加文章内容骨架屏 -->
-        <template v-if="loadingStates.article">
-            <div class="article-skeleton">
-                <el-skeleton :rows="3" animated />
-                <el-skeleton style="margin-top: 20px" :rows="5" animated />
-            </div>
-        </template>
-
-        <!-- 添加历史记录骨架屏 -->
-        <template v-if="isLoadingHistory">
-            <div class="history-skeleton">
-                <el-skeleton :rows="2" animated>
-                    <template #template>
-                        <el-skeleton-item variant="p" style="width: 60%" />
-                        <el-skeleton-item variant="text" style="width: 100%" />
-                    </template>
-                </el-skeleton>
-            </div>
-        </template>
-
         <!-- 添加文档抽屉 -->
         <el-drawer
             v-model="showDocs"
-            title="使用文档"
-            :size="isMobile ? '90%' : '600px'"
+            title="使用说明"
+            :size="isMobile ? '85%' : '300px'"
             :with-header="true"
         >
             <div class="docs-content">
-                <section class="doc-section">
-                    <h3>🔑 API Key 设置</h3>
-                    <p>1. 注册并登录<a href="https://cloud.siliconflow.cn" target="_blank">硅基流动</a>账号</p>
-                    <p>2. 点击右上角的"API Keys"</p>
-                    <p>3. 点击"Create new secret key"创建新密钥</p>
-                    <p>4. 复制生成的密钥填写到设置中</p>
-                    <p class="tip">💡 新注册用户可获得14元免费额度</p>
-                </section>
-                
-                <section class="doc-section">
-                    <h3>📝 支持的文章来源</h3>
-                    <p>目前支持以下平台的文章：</p>
+                <div class="docs-section">
+                    <h4>✨ API Key 说明</h4>
                     <ul>
-                        <li>微信公众号</li>
-                        <li>知乎（文章/回答）</li>
-                        <li>小红书</li>
-                        <li>微博</li>
-                        <li>CSDN</li>
-                        <li>掘金</li>
-                        <li>简书</li>
-                        <li>36氪</li>
-                        <li>网易/新浪/搜狐新闻</li>
-                        <li>... 更多平台持续添加</li>
+                        <li>• 获取方式：硅基流动官网</li>
+                        <li>• 存储位置：本地浏览器</li>
+                        <li>• 安全说明：不会上传服务器</li>
                     </ul>
-                </section>
-                
-                <section class="doc-section">
-                    <h3>✨ 写作风格说明</h3>
-                    <p>提供多种写作风格：</p>
+                </div>
+
+                <div class="docs-section">
+                    <h4>📝 文章生成记录</h4>
                     <ul>
-                        <li><strong>平台风格：</strong> 公众号、小红书、知乎、微博等</li>
-                        <li><strong>文学大师：</strong> 鲁迅、王小波、钱钟书等</li>
-                        <li><strong>专业写作：</strong> 学术论文、新闻报道等</li>
-                        <li><strong>自定义风格：</strong> 可以自定义写作风格要求</li>
+                        <li>• 保存内容：URL、风格、生成结果</li>
+                        <li>• 保存时间：最近30天</li>
+                        <li>• 存储方式：本地存储</li>
+                        <li>• 清理方式：手动清理或自动过期</li>
                     </ul>
-                </section>
-                
-                <section class="doc-section">
-                    <h3>💾 历史记录</h3>
-                    <p>系统会自动保存您的改写历史：</p>
+                </div>
+
+                <div class="docs-section">
+                    <h4>💡 使用建议</h4>
                     <ul>
-                        <li>历史记录保存在浏览器本地</li>
-                        <li>可以随时查看、复制或删除</li>
-                        <li>清除浏览器缓存会导致历史记录丢失</li>
+                        <li>• 重要内容及时导出保存</li>
+                        <li>• 支持TXT、MD、PDF格式导出</li>
+                        <li>• 定期清理不需要的历史记录</li>
                     </ul>
-                </section>
-                
-                <section class="doc-section">
-                    <h3>⚙️ 高级功能</h3>
-                    <ul>
-                        <li><strong>保留原文结构：</strong> 可选择保持原文的段落结构</li>
-                        <li><strong>保留图片：</strong> 可选择在改写时保留原文的图片</li>
-                        <li><strong>自定义风格：</strong> 可以详细描述您需要的写作风格</li>
-                    </ul>
-                </section>
-                
-                <section class="doc-section">
-                    <h3>❗️ 注意事项</h3>
-                    <ul>
-                        <li>请确保您有权使用和改写文章内容</li>
-                        <li>改写结果仅供参考，建议人工审核</li>
-                        <li>不建议改写新闻等事实性内容</li>
-                        <li>API调用可能需要一定时间，请耐心等待</li>
-                    </ul>
-                </section>
+                </div>
             </div>
         </el-drawer>
     </div>
@@ -1390,49 +857,14 @@
                     showSettings: false,       // 显示设置抽屉
                     testing: false,           // API测试状态
                     isMobile: window.innerWidth <= 768,  // 是否移动端
-                    styleOptions: [
-                        // 社交平台
-                        { value: 'wemedia', label: '公众号' },
-                        { value: 'xiaohongshu', label: '小红书' },
-                        { value: 'zhihu', label: '知乎' },
-                        { value: 'weibo', label: '微博' },
-                        
-                        // 中国作家
-                        { value: 'luxun', label: '鲁迅' },
-                        { value: 'wangxiaobo', label: '王小波' },
-                        { value: 'qianzhongshu', label: '钱钟书' },
-                        { value: 'shenghuo', label: '沈从文' },
-                        { value: 'yuyong', label: '余秋雨' },
-                        { value: 'hanhan', label: '韩寒' },
-                        { value: 'wangshuo', label: '王朔' },
-                        { value: 'liucixin', label: '刘慈欣' },
-                        
-                        // 国外作家
-                        { value: 'kafka', label: '卡夫卡' },
-                        { value: 'marquez', label: '马尔克斯' },
-                        { value: 'murakami', label: '村上春树' },
-                        { value: 'borges', label: '博尔赫斯' },
-                        
-                        // 专业写作
-                        { value: 'academic', label: '学术论文' },
-                        { value: 'journalism', label: '新闻报道' },
-                        { value: 'literature', label: '文学评论' },
-                        { value: 'philosophy', label: '哲学论述' },
-                        
-                        // 自定义风格
-                        { value: 'custom', label: '自定义' }
-                    ],
-                    loadingStates: {
-                        article: false,    // 文章加载状态
-                        processing: false, // 处理状态
-                        saving: false     // 保存状态
-                    },
-                    loadingText: {
-                        article: '正在获取文章...',
-                        processing: '正在处理内容...',
-                        saving: '正在保存...'
-                    },
-                    showDocs: false,       // 显示文档抽屉
+                    articleContent: '',      // 文章内容
+                    originalContent: '',     // 原始文章内容
+                    processingStep: '',       // 当前处理步骤
+                    progressTimer: null,       // 进度更新定时器
+                    controller: null,          // AbortController实例
+                    maxRetries: 3,           // 最大重试次数
+                    showHistory: false,       // 显示历史记录抽屉
+                    showDocs: false,
                 }
             },
             methods: {
@@ -1581,62 +1013,103 @@
                     }
                 },
                 /**
-                 * 获取风格对应的提示词
-                 * @param {string} style - 选择的风格
-                 * @returns {string} 对应的提示词
+                 * 构建API提示词
+                 * @param {string} content - 原始文章内容
+                 * @returns {string} 构建的提示词
                  */
-                getStylePrompt(style) {
-                    const stylePrompts = {
-                        // 社交平台风格
-                        'wemedia': '以公众号的风格改写，要求：\n1. 标题吸引人，有吸引力\n2. 段落简短清晰\n3. 语言平易近人\n4. 适当使用emoji表情\n5. 结尾有互动引导',
-                        
-                        'xiaohongshu': '以小红书的风格改写，要求：\n1. 标题使用"|"分隔，突出关键词\n2. 大量使用emoji表情\n3. 语气亲切活泼\n4. 分点描述，重点突出\n5. 结尾互动感强，吸引评论',
-                        
-                        'zhihu': '以知乎的专业回答风格改写，要求：\n1. 开门见山，直击要点\n2. 论述严谨，有理有据\n3. 适当引用数据或案例\n4. 语言客观专业\n5. 结构层次分明',
-                        
-                        'weibo': '以微博的简短风格改写，要求：\n1. 内容精炼有力\n2. 语气轻松活泼\n3. 适当使用网络用语\n4. 突出重点话题\n5. 增加话题标签',
-                        
-                        // 中国作家风格
-                        'luxun': '以鲁迅的风格改写，要求：\n1. 犀利的讽刺笔法\n2. 简练有力的句式\n3. 深刻的思想内涵\n4. 善用比喻和象征\n5. 保持批判性思维',
-                        
-                        'wangxiaobo': '以王小波的风格改写，要求：\n1. 理性克制的叙述\n2. 冷幽默的表达\n3. 善用反讽和荒诞\n4. 逻辑性强\n5. 带有独特的思辨色彩',
-                        
-                        'qianzhongshu': '以钱钟书的风格改写，要求：\n1. 博学多识的引用\n2. 妙趣横生的比喻\n3. 精准的文字运用\n4. 善用典故\n5. 带有智性的幽默',
-                        
-                        'shenghuo': '以沈从文的风格改写，要求：\n1. 优美细腻的描写\n2. 朴实无华的语言\n3. 富有诗意的表达\n4. 充满人文关怀\n5. 细节描写生动',
-                        
-                        // 国外作家风格
-                        'kafka': '以卡夫卡的风格改写，要求：\n1. 荒诞离奇的情节\n2. 冷静客观的叙述\n3. 深刻的寓意\n4. 带有超现实色彩\n5. 突出异化感和孤独感',
-                        
-                        'marquez': '以马尔克斯的魔幻现实主义风格改写，要求：\n1. 现实与魔幻交织\n2. 丰富的想象力\n3. 细节描写细腻\n4. 时空交错的叙事\n5. 带有拉美色彩',
-                        
-                        'murakami': '以村上春树的风格改写，要求：\n1. 简洁冷静的叙述\n2. 意识流的表达\n3. 充满孤独感\n4. 融入音乐元素\n5. 若即若离的情感',
-                        
-                        'borges': '以博尔赫斯的风格改写，要求：\n1. 形而上的思考\n2. 迷宫式的结构\n3. 充满哲学意味\n4. 善用隐喻\n5. 融入文学典故',
-                        
-                        // 专业写作风格
-                        'academic': '以学术论文的风格改写，要求：\n1. 严谨的学术用语\n2. 清晰的论证结构\n3. 充分的论据支持\n4. 客观的分析态度\n5. 规范的引用格式',
-                        
-                        'journalism': '以新闻报道的风格改写，要求：\n1. 客观准确的叙述\n2. 简明扼要的表达\n3. 重点信息前置\n4. 六要素完整\n5. 避免主观评价',
-                        
-                        'literature': '以文学评论的风格改写，要求：\n1. 深入的文本分析\n2. 独到的见解\n3. 丰富的文学引用\n4. 专业的术语运用\n5. 逻辑性强',
-                        
-                        'philosophy': '以哲学论述的风格改写，要求：\n1. 思辨性强\n2. 概念清晰\n3. 逻辑严密\n4. 层层推进\n5. 深入本质'
-                    };
+                buildPrompt(content) {
+                    this.processingStep = '构建提示词';
+                    this.progress = 50;
 
-                    // 如果是自定义风格，直接返回用户输入的描述
-                    if (style === 'custom') {
-                        return this.form.customStyle || '请在下方输入自定义风格描述';
+                    // 获取选定的写作风格
+                    let stylePrompt = '';
+                    if (this.form.style === 'custom') {
+                        stylePrompt = this.form.customStyle || '保持原文风格';
+                    } else {
+                        const styles = {
+                            'wechat': `像资深新媒体运营一样写作，要求：
+1. 标题要素：
+   - 使用数字、问句或悬念制造吸引力
+   - 突出文章核心价值和读者利益
+   - 避免过度标题党，保持可信度
+
+2. 开篇方式：
+   - 以故事、数据或热点开头抓住读者
+   - 第一段要简短有力
+   - 开篇点明文章主题和价值
+
+3. 内容结构：
+   - 采用"总-分-总"或"提出问题-分析-解决方案"结构
+   - 每段控制在3-4行左右，保持视觉舒适
+   - 善用小标题和分点，增强可读性
+   - 适当使用加粗、引用等排版突出重点
+
+4. 语言特点：
+   - 口语化但不低俗，专业但不晦涩
+   - 多用比喻和类比，让抽象概念具象化
+   - 适度使用流行语，但不过度追赶热点
+   - 保持亲和力但不失专业性
+
+5. 互动设计：
+   - 适当设置悬念，制造阅读期待
+   - 在文中设置互动点，增加代入感
+   - 结尾总结核心观点，引导分享或讨论
+
+6. 写作禁忌：
+   - 避免生硬的广告植入
+   - 不使用过度夸张的表达
+   - 不堆砌空洞的成功学语言
+   - 避免过多网络流行语`,
+                            'xiaohongshu': '像小红书达人一样写作，语言自然真诚，富有情感和个人色彩，适度使用emoji增加亲和力',
+                            'zhihu': '像知乎大V一样写作，观点独到，论证严谨，专业性强但不晦涩，适度使用类比和举例增加可读性',
+                            'luxun': '像鲁迅先生一样写作，文字锋利但不尖刻，幽默但不油滑，批判性强但不失温度',
+                            'sanmao': '像三毛一样写作，文字优美细腻，富有诗意和人文关怀，描写生动但不矫情',
+                            'wangxiaobo': '像王小波一样写作，理性克制中带着智性幽默，文字简洁有力，充满人文思考',
+                            'hanhan': '像韩寒一样写作，语言犀利但不失温度，态度叛逆但不失理性，文字简练有力'
+                        };
+                        stylePrompt = styles[this.form.style] || '保持原文风格';
                     }
 
-                    return stylePrompts[style] || '请选择写作风格';
+                    // 构建完整提示词
+                    const prompt = `你是一位资深文案编辑，擅长将文章改写得更加吸引人，同时保持内容的真实性和可信度。请帮我改写以下文章。
+
+重要说明：
+1. 文章内容来自网页抓取，可能包含页头页脚等非正文内容，请在改写时智能识别并专注于正文部分
+2. 请直接返回改写后的文章内容，不要包含任何解释、说明或标注
+3. 改写时要像真实作者在写作，而不是AI在生成文本
+4. 保持文章的原有深度和专业性，不要过度口语化或简单化
+
+写作要求：
+1. 写作风格：${stylePrompt}
+2. 结构要求：${this.form.keepStructure ? '保持原文的段落结构，但可以优化段落内部的行文逻辑' : '可以调整文章结构，让文章更有层次感和可读性'}
+3. 图片处理：${this.form.keepImages ? '保留原文中的图片链接，并确保图片位置合理' : '删除图片链接'}
+4. 内容处理：
+   - 保持文章的核心论点和关键信息不变
+   - 可以补充适当的过渡和连接语，使文章更流畅
+   - 可以增加恰当的类比或举例，让内容更生动
+   - 可以调整语气和表达方式，使文章更有感染力
+5. 行文要求：
+   - 使用自然的语言节奏，避免机械化的表达
+   - 适当运用修辞手法，但不要过度堆砌
+   - 注意语言的连贯性和逻辑性
+   - 保持专业术语的准确性
+6. 如果有标题：
+   - 保持标题的核心含义
+   - 可以适当调整表达方式，使其更吸引人
+   - 避免标题党式的夸张表达
+
+以下是需要改写的文章：
+${content}
+
+请直接返回改写后的文章内容，确保输出的是一篇完整、自然、专业的文章。`;
+
+                    return prompt;
                 },
                 /**
                  * 调用DeepSeek API
                  * @param {string} prompt - 提示词
                  * @param {number} retryCount - 重试次数
                  * @returns {Promise<string>} API响应内容
-                 * @throws {Error} API调用失败时抛出错误
                  */
                 async callDeepSeekAPI(prompt, retryCount = 0) {
                     this.processingStep = '改写文章';
@@ -1653,8 +1126,12 @@
                             body: JSON.stringify({
                                 model: "deepseek-ai/DeepSeek-R1",
                                 messages: [{ role: "user", content: prompt }],
-                                temperature: 0.8,
-                                max_tokens: 8000
+                                temperature: 0.7,  // 降低温度以加快生成速度
+                                max_tokens: 8000,
+                                presence_penalty: 0.1,  // 添加存在惩罚以减少重复
+                                frequency_penalty: 0.1,  // 添加频率惩罚以减少重复
+                                top_p: 0.9,  // 控制输出的多样性
+                                stream: true  // 启用流式输出
                             }),
                             signal: this.controller.signal
                         });
@@ -1664,20 +1141,59 @@
                             throw new Error(error.error?.message || '处理失败');
                         }
 
-                        const result = await response.json();
-                        return result.choices[0].message.content;
+                        // 使用流式处理
+                        const reader = response.body.getReader();
+                        let content = '';
+                        let partialLine = '';
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            // 将新数据添加到部分行
+                            partialLine += new TextDecoder().decode(value);
+
+                            // 查找完整的数据行
+                            const lines = partialLine.split('\n');
+                            partialLine = lines.pop() || ''; // 保存不完整的行
+
+                            for (const line of lines) {
+                                if (line.trim() === '') continue;
+                                if (line.startsWith('data: ')) {
+                                    try {
+                                        const data = JSON.parse(line.slice(6));
+                                        if (data.choices && data.choices[0].delta.content) {
+                                            content += data.choices[0].delta.content;
+                                            // 实时更新内容
+                                            this.articleContent = content;
+                                            // 更新进度
+                                            this.progress = Math.min(90, this.progress + 1);
+                                        }
+                                    } catch (e) {
+                                        console.warn('解析流数据失败:', e);
+                                    }
+                                }
+                            }
+                        }
+
+                        return content;
                     } catch (error) {
                         if (error.name === 'AbortError') {
                             throw new Error('用户取消了处理');
                         }
                         
                         if (retryCount < this.maxRetries) {
+                            console.warn(`API调用失败，正在重试(${retryCount + 1}/${this.maxRetries})...`);
                             await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
                             return this.callDeepSeekAPI(prompt, retryCount + 1);
                         }
                         throw error;
                     }
                 },
+                /**
+                 * 处理文章
+                 * @returns {Promise<void>}
+                 */
                 async processArticle() {
                     if (!this.form.url) {
                         this.$message.warning('请输入文章链接');
@@ -1685,7 +1201,7 @@
                     }
 
                     if (!this.validateUrl(this.form.url)) {
-                        this.$message.error('请输入有效的文章链接');
+                        this.showUnsupportedUrlMessage();
                         return;
                     }
 
@@ -1698,35 +1214,30 @@
                     this.progress = 0;
                     this.articleContent = '';
                     this.startTime = Date.now();
-                    
+
                     try {
-                        // 步骤1：获取文章
+                        // 先获取文章内容
                         const content = await this.fetchArticle();
                         
-                        // 步骤2：构建提示词
-                        const prompt = this.getStylePrompt(this.form.style);
+                        // 构建提示词
+                        const prompt = this.buildPrompt(content);
                         
-                        // 步骤3：调用API改写
+                        // 调用API改写
                         this.articleContent = await this.callDeepSeekAPI(prompt);
                         
-                        // 步骤4：保存到历史记录
+                        // 保存到历史记录
                         this.saveToHistory();
                         
                         this.progress = 100;
-                        this.processingStep = '完成';
-                        
-                        // 计算实际用时
-                        const processingTime = ((Date.now() - this.startTime) / 1000).toFixed(1);
-                        this.$message.success(`文章改写完成，用时 ${processingTime} 秒`);
-                        
+                        this.$message.success('处理完成！');
                     } catch (error) {
                         this.$message.error(error.message);
                         console.error('处理失败:', error);
                     } finally {
+                        this.processing = false;
                         if (this.progressTimer) {
                             clearInterval(this.progressTimer);
                         }
-                        this.processing = false;
                         this.controller = null;
                     }
                 },
@@ -1825,17 +1336,18 @@
                  * @returns {string} 风格中文名称
                  */
                 getStyleName(style) {
-                    const styleMap = {
-                        'wemedia': '公众号爆文',
+                    const styles = {
+                        'wechat': '公众号爆文',
                         'xiaohongshu': '小红书风格',
                         'zhihu': '知乎答主',
-                        'luxun': '鲁迅',
-                        'sanmao': '三毛',
-                        'wangxiaobo': '王小波',
-                        'hanhan': '韩寒',
+                        'popular': '通俗易懂',
+                        'professional': '专业学术',
+                        'story': '故事性强',
+                        'humor': '幽默诙谐',
+                        'business': '商务严谨',
                         'custom': '自定义风格'
                     };
-                    return styleMap[style] || style;
+                    return styles[style] || style;
                 },
                 async copyHistoryContent(item) {
                     try {
@@ -1878,71 +1390,116 @@
                     try {
                         new URL(url);
                         const validDomains = [
+                            // 主流新闻网站
+                            '163.com',           // 网易
+                            'sina.com.cn',       // 新浪
+                            'sohu.com',          // 搜狐
+                            'qq.com',            // 腾讯
+                            'ifeng.com',         // 凤凰网
+                            'thepaper.cn',       // 澎湃新闻
+                            'guancha.cn',        // 观察者网
+                            'huanqiu.com',        // 环球网
+                            'bjnews.com.cn',     // 新京报
+                            'yicai.com',         // 第一财经
+                            'caixin.com',        // 财新网
+                            'jiemian.com',       // 界面新闻
+                            
                             // 社交媒体平台
-                            'mp.weixin.qq.com',      // 微信公众号
-                            'xiaohongshu.com',       // 小红书
-                            'm.xiaohongshu.com',     // 小红书移动版
-                            'weibo.com',             // 微博
-                            'weibo.cn',              // 微博移动版
-                            
-                            // 知识平台
-                            'www.zhihu.com',         // 知乎
-                            'zhuanlan.zhihu.com',    // 知乎专栏
-                            'juejin.cn',             // 掘金
-                            'blog.csdn.net',         // CSDN
-                            'www.jianshu.com',       // 简书
-                            'segmentfault.com',      // 思否
-                            'www.infoq.cn',          // InfoQ
-                            
-                            // 新闻媒体
-                            'www.163.com',           // 网易新闻
-                            '163.com',               // 网易新闻（无www）
-                            'dy.163.com',            // 网易号
-                            'tech.163.com',          // 网易科技
-                            'news.163.com',          // 网易新闻
-                            'www.sohu.com',          // 搜狐新闻
-                            'm.sohu.com',            // 搜狐移动版
-                            'www.sina.com.cn',       // 新浪网
-                            'sina.com.cn',           // 新浪网
-                            'news.sina.com.cn',      // 新浪新闻
-                            'tech.sina.com.cn',      // 新浪科技
-                            'www.thepaper.cn',       // 澎湃新闻
-                            
-                            // 博客平台
-                            'www.cnblogs.com',       // 博客园
-                            'blog.51cto.com',        // 51CTO博客
-                            'www.oschina.net',       // 开源中国
-                            'baijiahao.baidu.com',   // 百家号
-                            'www.toutiao.com',       // 今日头条
-                            'mp.toutiao.com',        // 头条号
-                            
-                            // 其他媒体
-                            'www.huxiu.com',         // 虎嗅网
-                            '36kr.com',              // 36氪
-                            'www.36kr.com',          // 36氪
-                            'm.36kr.com',            // 36氪移动版
-                            'www.tmtpost.com',       // 钛媒体
-                            'www.geekpark.net',      // 极客公园
+                            'mp.weixin.qq.com',  // 微信公众号
+                            'weixin.qq.com',     // 微信文章
+                            'www.zhihu.com',     // 知乎
+                            'zhuanlan.zhihu.com',// 知乎专栏
+                            'xiaohongshu.com',   // 小红书
+                            'm.xiaohongshu.com', // 小红书移动版
+                            'weibo.com',         // 微博
+                            'douban.com',        // 豆瓣
+                            'douban.org',        // 豆瓣
+                            'bilibili.com',      // B站
                             
                             // 技术社区
-                            'github.com',            // GitHub
-                            'gitee.com',             // Gitee
-                            'www.v2ex.com',          // V2EX
-                            'stackoverflow.com',      // Stack Overflow
-                            'developer.mozilla.org',  // MDN
-                            'www.ruanyifeng.com',    // 阮一峰的网络日志
+                            'juejin.cn',         // 掘金
+                            'blog.csdn.net',     // CSDN
+                            'segmentfault.com',  // 思否
+                            'jianshu.com',       // 简书
+                            'cnblogs.com',       // 博客园
+                            'oschina.net',       // 开源中国
+                            'infoq.cn',          // InfoQ
+                            'gitee.com',         // Gitee
+                            'github.com',        // GitHub
                             
-                            // 视频平台文章
-                            'www.bilibili.com',      // B站
-                            'm.bilibili.com',        // B站移动版
-                            'www.douyin.com',        // 抖音
-                            'www.ixigua.com'         // 西瓜视频
+                            // 其他内容平台
+                            'toutiao.com',       // 今日头条
+                            'baijiahao.baidu.com', // 百家号
+                            'xueqiu.com',        // 雪球
+                            'tmtpost.com',       // 钛媒体
+                            '36kr.com',          // 36氪
+                            'sspai.com',         // 少数派
+                            'dgtle.com',         // 数字尾巴
+                            'huxiu.com',         // 虎嗅网
+                            'leiphone.com',      // 雷锋网
+                            'geekpark.net',      // 极客公园
+                            
+                            // 博客平台
+                            'medium.com',        // Medium
+                            'wordpress.com',     // WordPress
+                            'substack.com',      // Substack
+                            'telegraph.org',     // Telegraph
+                            
+                            // 学术平台
+                            'researchgate.net',  // ResearchGate
+                            'academia.edu',      // Academia
+                            'arxiv.org',         // arXiv
+                            'sciencedirect.com', // ScienceDirect
+                            
+                            // 垂直领域网站
+                            'jandan.net',        // 煎蛋
+                            'solidot.org',       // Solidot
+                            'ithome.com',        // IT之家
+                            'pingwest.com',      // 品玩
+                            'gcores.com',        // 机核
+                            'qdaily.com',        // 好奇心日报
+                            'woshipm.com',       // 人人都是产品经理
+                            
+                            // 自媒体平台
+                            'yuque.com',         // 语雀
+                            'notion.so',         // Notion
+                            'feishu.cn',         // 飞书
+                            'shimo.im'           // 石墨文档
                         ];
+                        
                         const urlObj = new URL(url);
-                        return validDomains.some(domain => urlObj.hostname.includes(domain));
+                        const hostname = urlObj.hostname;
+                        
+                        // 检查域名是否在支持列表中
+                        return validDomains.some(domain => 
+                            hostname === domain || 
+                            hostname.endsWith('.' + domain) ||
+                            hostname.includes('.' + domain + '.') // 处理子域名
+                        );
                     } catch (e) {
                         return false;
                     }
+                },
+                /**
+                 * 显示不支持的网站提示
+                 */
+                showUnsupportedUrlMessage() {
+                    this.$message({
+                        message: `目前支持以下网站的文章：
+                        
+                        • 主流媒体：网易、新浪、搜狐、腾讯、凤凰网、澎湃新闻等
+                        • 社交平台：微信公众号、知乎、小红书、微博、豆瓣、B站等
+                        • 技术社区：掘金、CSDN、思否、简书、博客园等
+                        • 自媒体：今日头条、36氪、虎嗅、少数派等
+                        • 学术平台：ResearchGate、arXiv等
+                        • 其他平台：语雀、飞书、石墨文档等
+                        
+                        如有其他网站需求，请在设置中反馈。`,
+                        type: 'warning',
+                        duration: 10000,
+                        showClose: true,
+                        dangerouslyUseHTMLString: true
+                    });
                 },
                 /**
                  * 初始化历史记录
@@ -1978,41 +1535,272 @@
                         this.isLoadingMore = false;
                     }
                 },
-                // 优化错误提示
-                showError(error, type = 'error') {
-                    const errorMessages = {
-                        API_ERROR: 'API 调用失败，请检查网络连接',
-                        URL_ERROR: '无效的文章链接，请检查链接是否正确',
-                        NETWORK_ERROR: '网络连接失败，请稍后重试',
-                        CONTENT_ERROR: '获取文章内容失败，请重试'
-                    };
+                /**
+                 * 处理历史记录导出
+                 * @param {string} command - 导出类型
+                 * @param {Object} item - 历史记录项
+                 */
+                handleHistoryExport(command, item) {
+                    try {
+                        // 获取历史记录中的内容和元数据
+                        const content = item.content;
+                        const style = item.style;
+                        const url = item.url;
+                        
+                        switch(command) {
+                            case 'txt':
+                                // 导出文本文件
+                                const txtBlob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                                this.downloadHistoryFile(txtBlob, 'txt', url);
+                                break;
+                                
+                            case 'md':
+                                // 导出Markdown文件
+                                const title = url.split('/').pop() || '改写文章';
+                                const markdown = `# ${title}\n\n` +
+                                               `> 写作风格：${this.getStyleName(style)}\n\n` +
+                                               content.split('\n').join('\n\n');
+                                const mdBlob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+                                this.downloadHistoryFile(mdBlob, 'md', url);
+                                break;
+                                
+                            case 'pdf':
+                                // 导出PDF文件
+                                this.exportHistoryToPdf(item);
+                                break;
+                        }
+                    } catch (err) {
+                        this.$message.error('导出失败');
+                        console.error('导出历史记录失败:', err);
+                    }
+                },
+                /**
+                 * 导出历史记录为PDF
+                 * @param {Object} item - 历史记录项
+                 */
+                async exportHistoryToPdf(item) {
+                    try {
+                        // 创建临时容器
+                        const container = document.createElement('div');
+                        container.style.padding = '20px';
+                        container.style.width = '210mm'; // A4纸宽度
+                        container.innerHTML = `
+                            <div style="font-family: Arial, sans-serif;">
+                                <h1 style="color: #333; font-size: 24px; margin-bottom: 16px;">
+                                    ${item.url.split('/').pop() || '改写文章'}
+                                </h1>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 24px;">
+                                    写作风格：${this.getStyleName(item.style)}
+                                </p>
+                                <div style="line-height: 1.6; font-size: 14px; color: #333;">
+                                    ${item.content.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        `;
 
-                    this.$notify({
-                        title: '错误提示',
-                        message: errorMessages[error] || error,
-                        type,
-                        duration: 3000,
-                        position: 'top-right'
+                        document.body.appendChild(container);
+
+                        // 配置PDF选项
+                        const opt = {
+                            margin: [15, 15],
+                            filename: `改写文章_${new Date().toISOString().slice(0,10)}.pdf`,
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { 
+                                scale: 2,
+                                useCORS: true,
+                                logging: false
+                            },
+                            jsPDF: { 
+                                unit: 'mm', 
+                                format: 'a4', 
+                                orientation: 'portrait'
+                            }
+                        };
+
+                        // 生成PDF
+                        await html2pdf().from(container).set(opt).save();
+                        
+                        // 清理临时元素
+                        document.body.removeChild(container);
+                        this.$message.success('PDF导出成功');
+                    } catch (err) {
+                        this.$message.error('导出PDF失败');
+                        console.error('导出历史记录PDF失败:', err);
+                    }
+                },
+                /**
+                 * 下载历史记录文件
+                 * @param {Blob} blob - 文件内容
+                 * @param {string} extension - 文件扩展名
+                 * @param {string} sourceUrl - 源文章URL
+                 */
+                downloadHistoryFile(blob, extension, sourceUrl) {
+                    try {
+                        const timestamp = new Date().toISOString().slice(0,19).replace(/[:]/g, '-');
+                        const urlTitle = sourceUrl.split('/').pop() || '改写文章';
+                        const filename = `${urlTitle}_${timestamp}.${extension}`;
+                        
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        
+                        this.$message.success(`${extension.toUpperCase()}文件导出成功`);
+                    } catch (err) {
+                        this.$message.error(`导出${extension.toUpperCase()}文件失败`);
+                        console.error('下载历史记录失败:', err);
+                    }
+                },
+                /**
+                 * 处理导出命令
+                 * @param {string} command - 导出类型
+                 */
+                handleExport(command) {
+                    if (!this.articleContent) {
+                        this.$message.warning('没有可导出的内容');
+                        return;
+                    }
+                    
+                    switch(command) {
+                        case 'txt':
+                            // 导出文本文件
+                            const txtBlob = new Blob([this.articleContent], { type: 'text/plain;charset=utf-8' });
+                            this.downloadFile(txtBlob, 'txt');
+                            break;
+                            
+                        case 'md':
+                            // 导出Markdown文件
+                            const title = this.form.url.split('/').pop() || '改写文章';
+                            const markdown = `# ${title}\n\n` +
+                                           `> 写作风格：${this.getStyleName(this.form.style)}\n\n` +
+                                           this.articleContent.split('\n').join('\n\n');
+                            const mdBlob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+                            this.downloadFile(mdBlob, 'md');
+                            break;
+                            
+                        case 'pdf':
+                            // 导出PDF文件
+                            this.exportToPdf();
+                            break;
+                    }
+                },
+                /**
+                 * 导出为PDF文件
+                 */
+                async exportToPdf() {
+                    try {
+                        // 创建临时容器
+                        const container = document.createElement('div');
+                        container.style.padding = '20px';
+                        container.style.width = '210mm'; // A4纸宽度
+                        container.innerHTML = `
+                            <div style="font-family: Arial, sans-serif;">
+                                <h1 style="color: #333; font-size: 24px; margin-bottom: 16px;">
+                                    ${this.form.url.split('/').pop() || '改写文章'}
+                                </h1>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 24px;">
+                                    写作风格：${this.getStyleName(this.form.style)}
+                                </p>
+                                <div style="line-height: 1.6; font-size: 14px; color: #333;">
+                                    ${this.articleContent.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        `;
+
+                        document.body.appendChild(container);
+
+                        // 配置PDF选项
+                        const opt = {
+                            margin: [15, 15],
+                            filename: `改写文章_${new Date().toISOString().slice(0,10)}.pdf`,
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { 
+                                scale: 2,
+                                useCORS: true,
+                                logging: false
+                            },
+                            jsPDF: { 
+                                unit: 'mm', 
+                                format: 'a4', 
+                                orientation: 'portrait'
+                            }
+                        };
+
+                        // 生成PDF
+                        await html2pdf().from(container).set(opt).save();
+                        
+                        // 清理临时元素
+                        document.body.removeChild(container);
+                        this.$message.success('PDF导出成功');
+                    } catch (err) {
+                        this.$message.error('导出PDF失败');
+                        console.error('导出失败:', err);
+                    }
+                },
+                /**
+                 * 下载文件
+                 * @param {Blob} blob - 文件内容
+                 * @param {string} extension - 文件扩展名
+                 */
+                downloadFile(blob, extension) {
+                    try {
+                        const timestamp = new Date().toISOString().slice(0,19).replace(/[:]/g, '-');
+                        const filename = `改写文章_${timestamp}.${extension}`;
+                        
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        
+                        this.$message.success(`${extension.toUpperCase()}文件导出成功`);
+                    } catch (err) {
+                        this.$message.error(`导出${extension.toUpperCase()}文件失败`);
+                        console.error('下载失败:', err);
+                    }
+                },
+                /**
+                 * 处理文章内容的显示
+                 * @param {string} content - 原始内容
+                 * @returns {string} 处理后的内容
+                 */
+                formatArticleContent(content) {
+                    if (!content) return '';
+                    
+                    // 处理图片链接
+                    return content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+                        // 如果链接太长，截断显示
+                        const displayUrl = url.length > 60 ? url.substring(0, 57) + '...' : url;
+                        return `[图片链接: ${displayUrl}]`;
                     });
                 },
                 /**
-                 * 清空 API Key
-                 * @returns {void}
+                 * 清除API Key
                  */
                 clearApiKey() {
-                    this.$confirm('确定要清空 API Key 吗? 清空后需要重新设置才能继续使用。', '提示', {
+                    this.$confirm('确定要清除API Key吗？清除后需要重新设置才能继续使用。', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
-                        // 清空本地存储
+                        // 清除localStorage中的API Key
                         localStorage.removeItem('deepseek_api_key');
-                        // 清空表单数据
+                        // 清除表单中的API Key
                         this.form.apiKey = '';
-                        this.$message.success('API Key 已清空');
+                        // 显示成功提示
+                        this.$message.success('API Key已清除');
                         // 关闭设置抽屉
                         this.showSettings = false;
-                    }).catch(() => {});
+                    }).catch(() => {
+                        // 用户取消操作，不做任何处理
+                    });
                 }
             },
             /**
