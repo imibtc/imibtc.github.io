@@ -224,7 +224,14 @@
             
             /* API设置抽屉 */
             .el-drawer {
-                width: 90% !important;
+                width: 85% !important;
+                max-width: 100vw !important;
+            }
+            
+            /* 确保抽屉内容不会溢出 */
+            .el-drawer__body {
+                padding: 16px;
+                overflow-x: hidden;
             }
             
             /* 历史记录抽屉 */
@@ -459,6 +466,18 @@
         
         .author-info a:hover {
             text-decoration: underline;
+        }
+
+        /* 确保抽屉显示在最上层 */
+        .el-drawer {
+            z-index: 3000 !important;
+        }
+        
+        /* 确保抽屉内容区域样式正确 */
+        .el-drawer__body {
+            padding: 20px;
+            box-sizing: border-box;
+            width: 100%;
         }
     </style>
 </head>
@@ -700,7 +719,7 @@
         <el-drawer
             v-model="showSettings"
             title="API设置"
-            :size="isMobile ? '70%' : '300px'"
+            :size="isMobile ? '85%' : '400px'"
             :with-header="true"
         >
             <el-form :model="form" label-position="top">
@@ -1431,6 +1450,7 @@ ${content}
                         new URL(url);
                         const validDomains = [
                             // 主流新闻网站
+                            'msn.cn',            // MSN中国
                             '163.com',           // 网易
                             'sina.com.cn',       // 新浪
                             'sohu.com',          // 搜狐
@@ -1527,7 +1547,7 @@ ${content}
                     this.$message({
                         message: `目前支持以下网站的文章：
                         
-                        • 主流媒体：网易、新浪、搜狐、腾讯、凤凰网、澎湃新闻等
+                        • 主流媒体：MSN中国、网易、新浪、搜狐、腾讯、凤凰网、澎湃新闻等
                         • 社交平台：微信公众号、知乎、小红书、微博、豆瓣、B站等
                         • 技术社区：掘金、CSDN、思否、简书、博客园等
                         • 自媒体：今日头条、36氪、虎嗅、少数派等
