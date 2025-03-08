@@ -434,6 +434,32 @@
                 padding: 0 12px;
             }
         }
+
+        .author-info {
+            margin-bottom: 20px;
+        }
+        
+        .author-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .author-info li {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        
+        .author-info a {
+            color: #409eff;
+            text-decoration: none;
+        }
+        
+        .author-info a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -777,6 +803,15 @@
             :with-header="true"
         >
             <div class="docs-content">
+                <!-- 修改文档抽屉中的作者信息区域 -->
+                <div class="author-info">
+                    <ul>
+                        <li>联系方式：QQ：445425400</li>
+                    </ul>
+                </div>
+                <!-- 添加分隔线 -->
+                <el-divider></el-divider>
+
                 <div class="docs-section">
                     <h4>✨ API Key 说明</h4>
                     <ul>
