@@ -1,8 +1,58 @@
-// 全局常量配置
-const PROXY_URL = '/proxy/';    // 适用于 Cloudflare, Netlify (带重写), Vercel (带重写)
-// const HOPLAYER_URL = 'https://hoplayer.com/index.html';
-const SEARCH_HISTORY_KEY = 'videoSearchHistory';
-const MAX_HISTORY_ITEMS = 5;
+// ======================
+// 全局网络配置
+// ======================
+const NETWORK_CONFIG = {
+  // 代理配置（优先级从高到低）
+  proxies: [
+    '/proxy/',  // 优先使用本地代理（适用于Cloudflare/Netlify/Vercel）
+    'https://corsproxy.io/?',  // 备用公共代理1
+    'https://api.allorigins.win/get?url='  // 备用公共代理2
+  ],
+  
+  // 是否启用代理失败自动切换
+  autoSwitchProxy: true,
+  
+  // 最大重试次数
+  maxRetries: 2
+};
+
+// ======================
+// 播放器配置
+// ======================
+const PLAYER_CONFIG = {
+  defaultPlayer: 'https://plyr.io/', // 默认播放器
+  fallbackPlayers: [
+    'https://www.dplayer.js.org/',
+    'https://videojs.com/'
+  ]
+};
+
+// ======================
+// 本地存储配置
+// ======================
+const STORAGE_CONFIG = {
+  searchHistory: {
+    key: 'videoSearchHistory',
+    maxItems: 5,
+    // 新增去重功能配置
+    deduplicate: true,
+    // 新增过期时间（7天）
+    expires: 7 * 24 * 60 * 60 * 1000 
+  },
+  // 可扩展其他存储项
+  recentWatched: {
+    key: 'recentWatchedVideos',
+    maxItems: 10
+  }
+};
+
+// ======================
+// 兼容旧版本（可选）
+// ======================
+// 保留原有常量（不建议新代码直接使用）
+const PROXY_URL = NETWORK_CONFIG.proxies[0];  // 兼容旧代码
+const SEARCH_HISTORY_KEY = STORAGE_CONFIG.searchHistory.key;
+const MAX_HISTORY_ITEMS = STORAGE_CONFIG.searchHistory.maxItems;
 
 // 网站信息配置
 const SITE_CONFIG = {
