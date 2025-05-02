@@ -1,7 +1,6 @@
 // 全局常量配置
-
-const PROXY_URLS = 'https://cors-anywhere.herokuapp.com/';
-const HOPLAYER_URL = 'https://hoplayer.com/index.html';
+const PROXY_URL = '/proxy/';    // 适用于 Cloudflare, Netlify (带重写), Vercel (带重写)
+// const HOPLAYER_URL = 'https://hoplayer.com/index.html';
 const SEARCH_HISTORY_KEY = 'videoSearchHistory';
 const MAX_HISTORY_ITEMS = 5;
 
