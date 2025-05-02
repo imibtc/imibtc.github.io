@@ -1,58 +1,159 @@
 // ======================
-// 全局网络配置
+// 全局网络配置（已修改）
 // ======================
 const NETWORK_CONFIG = {
-  // 代理配置（优先级从高到低）
+  // 更新代理配置（全部使用可用的公共代理）
   proxies: [
-    '/proxy/',  // 优先使用本地代理（适用于Cloudflare/Netlify/Vercel）
-    'https://corsproxy.io/?',  // 备用公共代理1
-    'https://api.allorigins.win/get?url='  // 备用公共代理2
+    'https://corsproxy.io/?',  // 稳定代理1
+    'https://api.allorigins.win/get?url=',  // 代理2
+    'https://thingproxy.freeboard.io/fetch/'  // 新增代理3
   ],
   
-  // 是否启用代理失败自动切换
-  autoSwitchProxy: true,
+  // 增强的重试配置
+  retryConfig: {
+    maxRetries: 3,  // 增加到3次
+    retryDelay: 1000, // 重试间隔1秒
+    timeout: 8000 // 单个请求超时8秒
+  },
   
-  // 最大重试次数
-  maxRetries: 2
+  // 新增API健康检查
+  healthCheck: {
+    checkInterval: 60000 // 每分钟检查一次代理可用性
+  }
 };
 
 // ======================
-// 播放器配置
+// 搜索专用配置（新增）
 // ======================
-const PLAYER_CONFIG = {
-  defaultPlayer: 'https://plyr.io/', // 默认播放器
-  fallbackPlayers: [
-    'https://www.dplayer.js.org/',
-    'https://videojs.com/'
-  ]
+const SEARCH_CONFIG = {
+  // 搜索参数配置
+  params: {
+    default: {
+      ac: 'videolist',
+      wd: '', // 搜索关键词占位符
+      pg: 1   // 页码
+    },
+    // 特殊API的参数覆盖
+    overrides: {
+      ffzy: {
+        ac: 'search'
+      }
+    }
+  },
+  
+  // 结果处理配置
+  resultHandler: {
+    minScore: 0.5, // 最低匹配分数
+    maxResults: 50 // 最大返回结果数
+  }
 };
 
 // ======================
-// 本地存储配置
+// 增强的本地存储配置
 // ======================
 const STORAGE_CONFIG = {
   searchHistory: {
     key: 'videoSearchHistory',
     maxItems: 5,
-    // 新增去重功能配置
     deduplicate: true,
-    // 新增过期时间（7天）
-    expires: 7 * 24 * 60 * 60 * 1000 
+    expires: 7 * 24 * 60 * 60 * 1000,
+    // 新增搜索统计功能
+    analytics: true // 是否记录搜索频率
   },
-  // 可扩展其他存储项
   recentWatched: {
     key: 'recentWatchedVideos',
+    maxItems: 10,
+    // 新增观看进度记录
+    saveProgress: true
+  },
+  // 新增代理缓存
+  proxyCache: {
+    key: 'proxyPerformance',
     maxItems: 10
   }
 };
 
 // ======================
-// 兼容旧版本（可选）
+// 兼容旧版本
 // ======================
-// 保留原有常量（不建议新代码直接使用）
-const PROXY_URL = NETWORK_CONFIG.proxies[0];  // 兼容旧代码
+const PROXY_URL = NETWORK_CONFIG.proxies[0];
 const SEARCH_HISTORY_KEY = STORAGE_CONFIG.searchHistory.key;
 const MAX_HISTORY_ITEMS = STORAGE_CONFIG.searchHistory.maxItems;
+
+// ======================
+// 新增核心搜索函数
+// ======================
+class SearchService {
+  static async search(keyword, options = {}) {
+    // 参数处理
+    const searchParams = new URLSearchParams({
+      ...SEARCH_CONFIG.params.default,
+      wd: keyword,
+      ...options
+    });
+    
+    // 尝试所有可用代理
+    for (const proxy of NETWORK_CONFIG.proxies) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), NETWORK_CONFIG.retryConfig.timeout);
+        
+        const response = await fetch(`${proxy}${encodeURIComponent(`${API_SITES.heimuer.api}?${searchParams}`)}`, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          const data = await response.json();
+          return this.processResults(data);
+        }
+      } catch (error) {
+        console.warn(`代理 ${proxy} 失败:`, error.message);
+      }
+    }
+    
+    throw new Error('所有代理尝试均失败');
+  }
+  
+  static processResults(data) {
+    // 结果过滤和处理
+    return {
+      success: true,
+      count: data.list?.length || 0,
+      results: (data.list || []).filter(item => 
+        item.vod_name && item.vod_play_url
+      ).slice(0, SEARCH_CONFIG.resultHandler.maxResults)
+    };
+  }
+}
+
+// ======================
+// 使用方法示例
+// ======================
+/*
+// 在搜索事件中调用
+document.getElementById('search-btn').addEventListener('click', async () => {
+  const keyword = document.getElementById('search-input').value;
+  
+  try {
+    const result = await SearchService.search(keyword);
+    if (result.success && result.count > 0) {
+      // 显示结果
+      displayResults(result.results);
+      // 存储历史
+      StorageManager.updateSearchHistory(keyword);
+    } else {
+      showNoResults();
+    }
+  } catch (error) {
+    showError(error.message);
+  }
+});
+*/
 
 // 网站信息配置
 const SITE_CONFIG = {
